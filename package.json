@@ -1,0 +1,35 @@
+{
+  "name": "auction-sender-web",
+  "version": "1.0.0",
+  "description": "Local web UI for sending auction prices via personal WhatsApp",
+  "main": "server.js",
+  "bin": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "build": "pkg . --targets node22-win-x64 --output dist/AuctionSender.exe --compress GZip"
+  },
+  "dependencies": {
+    "@napi-rs/canvas": "^0.1.100",
+    "@whiskeysockets/baileys": "6.7.18",
+    "express": "^4.21.0",
+    "multer": "^1.4.5-lts.1",
+    "pino": "^9.0.0",
+    "qrcode": "^1.5.4",
+    "socket.io": "^4.8.0",
+    "xlsx": "^0.18.5"
+  },
+  "pkg": {
+    "assets": [
+      "public/**/*",
+      "node_modules/socket.io/client-dist/**/*",
+      "node_modules/@whiskeysockets/baileys/**/*.js",
+      "node_modules/@whiskeysockets/baileys/WAProto/**/*",
+      "node_modules/@whiskeysockets/baileys/WASignalGroup/**/*",
+      "node_modules/libsignal/**/*",
+      "node_modules/@hapi/hoek/lib/**/*"
+    ]
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

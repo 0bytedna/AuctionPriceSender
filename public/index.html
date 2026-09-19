@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Auction Price Sender</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <div class="brand-mark">✉</div>
+    <div>
+      <h1>Auction Price Sender</h1>
+      <p class="sub" id="firmLabel"></p>
+    </div>
+  </div>
+  <div class="header-chips">
+    <div class="wa-chip-wrap">
+      <button type="button" class="wa-chip" id="waChip" data-state="connecting" title="WhatsApp status">
+        <span class="chip-icon">WA</span>
+        <span class="dot"></span>
+        <span class="label">Connecting…</span>
+      </button>
+      <div class="wa-popup hidden" id="qrPanel">
+        <div class="wa-popup-arrow"></div>
+
+        <div class="wa-popup-view" id="qrView">
+          <h3>Scan to link WhatsApp</h3>
+          <p class="muted small">On your phone: WhatsApp → Settings → Linked Devices → Link a Device.</p>
+          <div class="qr-box"><img id="qrImg" alt="QR code" /></div>
+          <p class="muted small">After scanning, this popup closes automatically.</p>
+        </div>
+
+        <div class="wa-popup-view hidden" id="statusView">
+          <h3>WhatsApp linked</h3>
+          <p class="muted small">Your WhatsApp account is connected and ready to send.</p>
+          <button class="btn ghost wa-unlink-btn" id="resetWaBtn">Unlink WhatsApp</button>
+          <p class="muted small" style="margin-top: 8px;">After unlinking, you'll need to scan a new QR.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="wa-chip-wrap">
+      <button type="button" class="wa-chip sms-chip" id="smsChip" data-state="unconfigured" title="SMS Gateway status">
+        <span class="chip-icon">SMS</span>
+        <span class="dot"></span>
+        <span class="label">Not configured</span>
+      </button>
+      <div class="wa-popup hidden" id="smsPanel">
+        <div class="wa-popup-arrow"></div>
+
+        <div class="wa-popup-view" id="smsUnconfiguredView">
+          <h3>SMS Gateway not set up</h3>
+          <p class="muted small">Install the <strong>SMS Gateway for Android</strong> app on your phone, then fill in <code>sms.baseUrl</code>, <code>sms.username</code> and <code>sms.password</code> in <code>config.js</code>.</p>
+          <p class="muted small" style="margin-top: 8px;">See <strong>SMS_SETUP.md</strong> in your project folder for step-by-step instructions.</p>
+        </div>
+
+        <div class="wa-popup-view hidden" id="smsDisconnectedView">
+          <h3>SMS Gateway not reachable</h3>
+          <p class="muted small" id="smsError">Check the gateway connection.</p>
+          <ul class="muted small" style="text-align: left; margin: 8px 0; padding-left: 20px;">
+            <li>Phone has internet (Wi-Fi or mobile data) and SMS Gateway app shows "Online"</li>
+            <li><code>baseUrl</code>, <code>username</code>, <code>password</code> in <code>config.js</code> match the app exactly</li>
+            <li>For local mode: phone and laptop on same Wi-Fi, no AP/client isolation on router</li>
+          </ul>
+          <button class="btn ghost" id="smsRetryBtn" style="margin-top: 8px;">Retry connection</button>
+        </div>
+
+        <div class="wa-popup-view hidden" id="smsConnectedView">
+          <h3>SMS Gateway ready</h3>
+          <p class="muted small">The gateway connection is working. Keep SMS Gateway online on your phone for delivery.</p>
+          <button class="btn ghost" id="smsTestBtn" style="margin-top: 8px;">Send test SMS to my number</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <!-- Step 1: Load auction data -->
+  <section class="panel" id="uploadPanel">
+    <div class="step-head">
+      <span class="step-num">1</span>
+      <h2>Load auction data</h2>
+    </div>
+
+    <div class="source-tabs">
+      <button type="button" class="source-tab active" data-source="gsheet" id="gsheetTab">☁ Google Sheets</button>
+      <button type="button" class="source-tab" data-source="excel">📄 Upload Excel</button>
+    </div>
+
+    <div class="source-pane hidden" id="paneExcel">
+      <div class="drop-zone" id="dropZone">
+        <input type="file" id="fileInput" accept=".xlsx,.xls,.xlsm" hidden />
+        <div class="drop-inner">
+          <div class="drop-icon">📄</div>
+          <p><strong>Click to choose</strong> or drag & drop your .xlsx file</p>
+          <p class="muted small">Must have columns: Shetkari, Marka, Qty, Farmer Rate, CONTACT</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="source-pane" id="paneGsheet">
+      <div class="gsheet-box" id="gsheetBox">
+        <div style="display: flex; align-items: center; gap: 14px;">
+          <div style="font-size: 32px;">☁</div>
+          <div style="flex: 1;">
+            <p style="margin: 0; font-weight: 500;">Fetch latest data from your published Google Sheet</p>
+            <p class="muted small" id="gsheetHint" style="margin: 4px 0 0;">All tabs will be loaded — pick the date in the Sheet selector below.</p>
+          </div>
+          <button class="btn primary" id="gsheetFetchBtn">Fetch now</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="upload-info hidden" id="uploadInfo">
+      <div class="upload-info-row">
+        <span class="muted">Loaded from</span>
+        <span id="uploadSummary"></span>
+      </div>
+      <div class="upload-info-row">
+        <label class="muted" for="sheetSelect">Sheet (auction date)</label>
+        <select id="sheetSelect"></select>
+      </div>
+    </div>
+  </section>
+
+  <!-- View tabs: Shetkari (farmers) | Vyapari (buyers). Hidden until upload. -->
+  <div class="view-tabs hidden" id="viewTabs">
+    <button type="button" class="view-tab active" data-view="shetkari">
+      <span class="view-tab-icon">🌾</span>
+      <span>Shetkari</span>
+      <span class="muted small">— send prices to farmers</span>
+    </button>
+    <button type="button" class="view-tab" data-view="vyapari">
+      <span class="view-tab-icon">🛒</span>
+      <span>Vyapari</span>
+      <span class="muted small">— send confirmed lots to buyers</span>
+      <span class="buyer-book-pill" id="buyerBookPill" title="Buyers in data/buyer_book.json">0</span>
+    </button>
+  </div>
+
+  <!-- ===== SHETKARI VIEW ===== -->
+  <div class="view-pane" id="viewShetkari">
+
+  <!-- Step 2: Review -->
+  <section class="panel hidden" id="reviewPanel">
+    <div class="step-head">
+      <span class="step-num">2</span>
+      <h2>Review messages</h2>
+    </div>
+
+    <div class="options-row">
+      <label>
+        <span class="muted small">Date shown in message</span>
+        <input type="text" id="dateInput" placeholder="DD-MM-YYYY" />
+      </label>
+      <label class="inline-check">
+        <input type="checkbox" id="resumeCheck" />
+        <span>Resume (skip already-sent)</span>
+      </label>
+      <label>
+        <span class="muted small">Test to my own number (optional)</span>
+        <input type="text" id="testPhoneInput" placeholder="10-digit phone" />
+      </label>
+    </div>
+
+    <div class="summary-cards">
+      <div class="card"><span class="num" id="sumFarmers">–</span><span class="lbl">farmers</span></div>
+      <div class="card"><span class="num" id="sumLots">–</span><span class="lbl">lots</span></div>
+      <div class="card"><span class="num" id="sumMessages">–</span><span class="lbl">messages to send</span></div>
+      <div class="card warning hidden" id="cardMissing"><span class="num" id="sumMissing">–</span><span class="lbl">missing phone</span></div>
+      <div class="card warning hidden" id="cardMulti"><span class="num" id="sumMulti">–</span><span class="lbl">multi-phone</span></div>
+      <div class="card warning hidden" id="cardDupes"><span class="num" id="sumDupes">–</span><span class="lbl">duplicate phones</span></div>
+    </div>
+
+    <div id="warningsBox" class="warnings-box hidden"></div>
+
+    <div class="preview-controls">
+      <input type="text" id="previewSearch" placeholder="Search farmer…" />
+      <button class="btn ghost" id="refreshPreviewBtn">Refresh preview</button>
+    </div>
+    <div class="selection-bar">
+      <span class="selection-count" id="selectionCount">0 of 0 farmers selected</span>
+      <div class="selection-actions">
+        <button class="btn ghost small" id="selectAllBtn" type="button">Select all</button>
+        <button class="btn ghost small" id="deselectAllBtn" type="button">Deselect all</button>
+      </div>
+    </div>
+    <div class="preview-table-wrap">
+      <table class="preview-table" id="previewTable"></table>
+    </div>
+  </section>
+
+  <!-- Step 3: Send — two independent panels running in parallel -->
+  <section class="hidden" id="sendSection">
+    <div class="step-head" style="margin-bottom: 12px;">
+      <span class="step-num">3</span>
+      <h2>Send to farmers</h2>
+    </div>
+
+    <div class="send-panels">
+
+      <div class="panel send-panel send-panel-wa" id="sendPanelWa">
+        <div class="send-panel-head">
+          <span class="channel-icon channel-icon-wa">WA</span>
+          <h3>WhatsApp</h3>
+          <span class="send-panel-status" id="sendPanelStatusWa"></span>
+        </div>
+        <div class="send-bar">
+          <button class="btn primary big" id="sendWaBtn">▶ Send WhatsApp</button>
+          <button class="btn danger hidden" id="stopWaBtn">■ Stop</button>
+          <div class="progress-wrap hidden" id="progressWrapWa" data-channel="wa">
+            <div class="progress-track"><div class="progress-bar" id="progressBarWa"></div></div>
+            <div class="progress-label" id="progressLabelWa">0 / 0</div>
+          </div>
+        </div>
+        <div class="livelog" id="liveLogWa"></div>
+      </div>
+
+      <div class="panel send-panel send-panel-sms" id="sendPanelSms">
+        <div class="send-panel-head">
+          <span class="channel-icon channel-icon-sms">SMS</span>
+          <h3>SMS</h3>
+          <span class="send-panel-status" id="sendPanelStatusSms"></span>
+        </div>
+        <div class="send-bar">
+          <button class="btn primary big sms-send-btn" id="sendSmsBtn">▶ Send SMS</button>
+          <button class="btn danger hidden" id="stopSmsBtn">■ Stop</button>
+          <div class="progress-wrap hidden" id="progressWrapSms" data-channel="sms">
+            <div class="progress-track"><div class="progress-bar" id="progressBarSms"></div></div>
+            <div class="progress-label" id="progressLabelSms">0 / 0</div>
+          </div>
+        </div>
+        <div class="livelog" id="liveLogSms"></div>
+      </div>
+
+    </div>
+
+    <div class="actions-row" style="margin-top: 16px;">
+      <a class="btn ghost" href="/api/log" download>Download full log (CSV)</a>
+    </div>
+  </section>
+
+  </div><!-- /viewShetkari -->
+
+  <!-- ===== VYAPARI VIEW ===== -->
+  <div class="view-pane hidden" id="viewVyapari">
+
+  <section class="panel hidden" id="reviewPanelVy">
+    <div class="step-head">
+      <span class="step-num">2</span>
+      <h2>Review buyer messages</h2>
+    </div>
+
+    <div class="summary-cards">
+      <div class="card"><span class="num" id="sumBuyers">–</span><span class="lbl">buyers</span></div>
+      <div class="card"><span class="num" id="sumConfirmedLots">–</span><span class="lbl">confirmed lots</span></div>
+      <div class="card"><span class="num" id="sumSkippedLots">–</span><span class="lbl">cancelled / blank</span></div>
+      <div class="card warning hidden" id="cardUnknownBuyers"><span class="num" id="sumUnknown">–</span><span class="lbl">unknown shortname</span></div>
+      <div class="card warning hidden" id="cardNoPhoneBuyers"><span class="num" id="sumNoPhone">–</span><span class="lbl">no phone in book</span></div>
+    </div>
+
+    <div id="warningsBoxVy" class="warnings-box hidden"></div>
+
+    <div class="preview-controls">
+      <input type="text" id="previewSearchVy" placeholder="Search buyer…" />
+      <button class="btn ghost" id="refreshPreviewBtnVy">Refresh preview</button>
+    </div>
+    <div class="selection-bar">
+      <span class="selection-count" id="selectionCountVy">0 of 0 buyers selected</span>
+      <div class="selection-actions">
+        <button class="btn ghost small" id="selectAllBtnVy" type="button">Select all</button>
+        <button class="btn ghost small" id="deselectAllBtnVy" type="button">Deselect all</button>
+      </div>
+    </div>
+    <div class="preview-table-wrap">
+      <table class="preview-table" id="previewTableVy"></table>
+    </div>
+  </section>
+
+  <section class="hidden" id="sendSectionVy">
+    <div class="step-head" style="margin-bottom: 12px;">
+      <span class="step-num">3</span>
+      <h2>Send to buyers</h2>
+    </div>
+
+    <div class="send-panels">
+
+      <div class="panel send-panel send-panel-vy-wa" id="sendPanelVyWa">
+        <div class="send-panel-head">
+          <span class="channel-icon channel-icon-vy-wa">WA</span>
+          <h3>WhatsApp</h3>
+          <span class="send-panel-status" id="sendPanelStatusVyWa"></span>
+        </div>
+        <label class="inline-check" style="margin-bottom: 10px;">
+          <input type="checkbox" id="sendAsImageCheck" checked />
+          <span>📷 Send as image (recommended — preserves table layout)</span>
+        </label>
+        <div class="send-bar">
+          <button class="btn primary big vy-send-btn" id="sendVyWaBtn">▶ Send WhatsApp</button>
+          <button class="btn danger hidden" id="stopVyWaBtn">■ Stop</button>
+          <div class="progress-wrap hidden" id="progressWrapVyWa" data-channel="wa">
+            <div class="progress-track"><div class="progress-bar" id="progressBarVyWa"></div></div>
+            <div class="progress-label" id="progressLabelVyWa">0 / 0</div>
+          </div>
+        </div>
+        <div class="livelog" id="liveLogVyWa"></div>
+      </div>
+
+    </div>
+
+    <div class="actions-row" style="margin-top: 16px;">
+      <span class="muted small">Edit <code>data/buyer_book.json</code> to add or update buyers. Restart server to reload.</span>
+    </div>
+  </section>
+
+  </div><!-- /viewVyapari -->
+</main>
+
+<!-- 'Not on WhatsApp' modal -->
+<div class="modal-backdrop hidden" id="notOnWaModal">
+  <div class="modal">
+    <div class="modal-icon">⚠</div>
+    <h3>Number not on WhatsApp</h3>
+    <p class="modal-body">
+      <strong id="notOnWaFarmer">—</strong><br />
+      <span class="mono" id="notOnWaPhone">—</span>
+    </p>
+    <p class="muted small">Note this down, then choose:</p>
+    <div class="modal-actions">
+      <button class="btn ghost" id="notOnWaStop">Stop everything</button>
+      <button class="btn primary" id="notOnWaSkip">Skip & continue →</button>
+    </div>
+  </div>
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="/app.js"></script>
+</body>
+</html>

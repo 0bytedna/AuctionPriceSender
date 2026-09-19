@@ -1,0 +1,911 @@
+:root {
+  --bg: #f7f4ee;
+  --bg-alt: #efeae0;
+  --surface: #ffffff;
+  --ink: #1d1a14;
+  --ink-dim: #6a6456;
+  --ink-mute: #8e8a7e;
+  --line: #e2dcd0;
+  --line-strong: #c9c1b1;
+  --accent: #1f5c3e;       /* deep green — 'confirm/send' */
+  --accent-soft: #e5ede8;
+  --warn: #a85a1e;         /* burnt amber */
+  --warn-soft: #f5e9d8;
+  --danger: #983226;
+  --danger-soft: #f3dcd6;
+  --mono: 'JetBrains Mono', ui-monospace, Menlo, monospace;
+  --display: 'Fraunces', Georgia, serif;
+  --body: 'Inter', -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif;
+  --radius: 8px;
+  --shadow: 0 1px 2px rgba(29, 26, 20, 0.04), 0 8px 24px -12px rgba(29, 26, 20, 0.12);
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--body);
+  background: var(--bg);
+  color: var(--ink);
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.hidden { display: none !important; }
+.muted { color: var(--ink-dim); }
+.small { font-size: 13px; }
+.mono  { font-family: var(--mono); }
+
+/* ===== Header ============================================================ */
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 32px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--line-strong);
+  box-shadow: 0 2px 8px rgba(29, 26, 20, 0.06);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  height: 56px;
+}
+
+.brand { display: flex; align-items: center; gap: 14px; }
+
+.brand-mark {
+  width: 32px; height: 32px;
+  background: var(--ink); color: var(--bg);
+  border-radius: 4px;
+  display: grid; place-items: center;
+  font-size: 16px;
+  font-family: var(--display);
+}
+
+.topbar h1 {
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: 18px;
+  letter-spacing: -0.01em;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.sub { margin: 0; font-size: 12px; color: var(--ink-dim); line-height: 1.2; }
+
+.header-chips {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.wa-chip-wrap {
+  position: relative;
+}
+
+.wa-chip {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 6px 12px 6px 6px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
+  border: 1px solid var(--line-strong);
+  background: var(--surface);
+  font-family: inherit;
+  color: inherit;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.wa-chip:hover { background: var(--bg-alt); }
+
+.wa-chip .chip-icon {
+  display: inline-block;
+  padding: 2px 7px;
+  background: var(--ink);
+  color: var(--bg);
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+.sms-chip .chip-icon {
+  background: #1f4b78;
+}
+
+.wa-chip[data-state="qr"] {
+  border-color: #c59b3d;
+  background: #fdf7e9;
+}
+
+.wa-chip .dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--ink-mute);
+}
+.wa-chip[data-state="connecting"] .dot,
+.wa-chip[data-state="checking"]   .dot { background: #c59b3d; animation: pulse 1.5s infinite; }
+.wa-chip[data-state="qr"]         .dot { background: #c59b3d; animation: pulse 1s infinite; }
+.wa-chip[data-state="connected"]  .dot { background: var(--accent); }
+.wa-chip[data-state="disconnected"] .dot,
+.wa-chip[data-state="unconfigured"] .dot { background: var(--ink-mute); }
+
+/* SMS chip uses a blue accent when connected (vs WhatsApp's green) */
+.wa-chip.sms-chip[data-state="connected"] .dot { background: #1f4b78; }
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+/* ===== Layout ============================================================ */
+main {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 80px 40px 80px;
+  display: flex; flex-direction: column; gap: 24px;
+}
+
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 28px 32px;
+  box-shadow: var(--shadow);
+}
+
+.step-head {
+  display: flex; align-items: center; gap: 14px;
+  margin-bottom: 20px;
+}
+
+.step-num {
+  display: grid; place-items: center;
+  width: 28px; height: 28px;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 15px;
+  background: var(--ink); color: var(--bg);
+  border-radius: 50%;
+}
+
+.panel h2 {
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: 22px;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+/* ===== QR panel ========================================================== */
+.wa-popup {
+  position: absolute;
+  top: calc(100% + 12px);
+  right: 0;
+  width: 320px;
+  background: white;
+  border: 1px solid var(--line-strong);
+  border-radius: 10px;
+  padding: 18px;
+  box-shadow: 0 8px 24px rgba(29, 26, 20, 0.15);
+  text-align: center;
+  z-index: 200;
+}
+.wa-popup h3 {
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: 16px;
+  margin: 0 0 6px;
+}
+.wa-popup p { margin: 6px 0; }
+.wa-popup-arrow {
+  position: absolute;
+  top: -7px;
+  right: 24px;
+  width: 12px;
+  height: 12px;
+  background: white;
+  border-left: 1px solid var(--line-strong);
+  border-top: 1px solid var(--line-strong);
+  transform: rotate(45deg);
+}
+.qr-box {
+  margin: 12px auto 8px;
+  padding: 10px;
+  background: white;
+  display: inline-block;
+  border-radius: 4px;
+  border: 1px solid var(--line);
+}
+.qr-box img { display: block; width: 240px; height: 240px; }
+
+.wa-unlink-btn {
+  display: block;
+  margin: 14px auto 0;
+  background: white;
+  border: 1px solid var(--danger);
+  color: var(--danger);
+  font-weight: 500;
+  padding: 8px 18px;
+}
+.wa-unlink-btn:hover:not(:disabled) {
+  background: var(--danger-soft);
+}
+
+/* ===== Upload ============================================================ */
+.source-tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--line);
+}
+.source-tab {
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink-dim);
+  cursor: pointer;
+  font-family: inherit;
+  margin-bottom: -1px;
+  transition: color 0.15s, border-color 0.15s;
+}
+.source-tab:hover { color: var(--ink); }
+.source-tab.active {
+  color: var(--ink);
+  border-bottom-color: var(--accent);
+}
+.source-tab:disabled {
+  cursor: not-allowed;
+  color: var(--ink-mute);
+  opacity: 0.6;
+}
+
+.gsheet-box {
+  background: var(--bg-alt);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 22px;
+}
+
+.drop-zone {
+  border: 2px dashed var(--line-strong);
+  background: var(--bg-alt);
+  border-radius: var(--radius);
+  padding: 32px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+  text-align: center;
+}
+.drop-zone:hover, .drop-zone.dragover {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+}
+.drop-inner p { margin: 8px 0 0; }
+.drop-icon { font-size: 32px; }
+
+.upload-info {
+  margin-top: 20px;
+  padding: 16px 20px;
+  background: var(--accent-soft);
+  border-radius: var(--radius);
+  border: 1px solid #c8d9cf;
+}
+.upload-info-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 4px 0;
+}
+.upload-info-row + .upload-info-row { border-top: 1px solid #c8d9cf; margin-top: 8px; padding-top: 12px; }
+
+/* ===== Inputs ============================================================ */
+input[type="text"], select {
+  font: inherit;
+  padding: 9px 12px;
+  border: 1px solid var(--line-strong);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--ink);
+  min-width: 180px;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+input[type="text"]:focus, select:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.options-row {
+  display: flex; flex-wrap: wrap; gap: 20px;
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--line);
+}
+.options-row label {
+  display: flex; flex-direction: column; gap: 6px;
+  font-size: 13px;
+}
+.inline-check {
+  flex-direction: row !important;
+  align-items: center;
+  gap: 8px !important;
+  cursor: pointer;
+  font-weight: 500;
+  padding-top: 20px;
+}
+.inline-check input { margin: 0; }
+
+/* ===== Summary cards ===================================================== */
+.summary-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.card {
+  padding: 14px 16px;
+  background: var(--bg-alt);
+  border-radius: var(--radius);
+  display: flex; flex-direction: column; gap: 2px;
+  border: 1px solid var(--line);
+}
+.card .num {
+  font-family: var(--display);
+  font-size: 28px;
+  font-weight: 500;
+  line-height: 1;
+}
+.card .lbl {
+  font-size: 12px;
+  color: var(--ink-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.card.warning {
+  background: var(--warn-soft);
+  border-color: #e4c28a;
+}
+.card.warning .num { color: var(--warn); }
+
+/* ===== Warnings ========================================================== */
+.warnings-box {
+  background: var(--warn-soft);
+  border: 1px solid #e4c28a;
+  border-left: 3px solid var(--warn);
+  border-radius: var(--radius);
+  padding: 14px 18px;
+  margin-bottom: 20px;
+  font-size: 14px;
+}
+.warnings-box h4 { margin: 0 0 6px; font-size: 14px; }
+.warnings-box ul { margin: 6px 0 0; padding-left: 20px; }
+.warnings-box li { margin: 3px 0; }
+.warnings-box + .warnings-box { margin-top: 8px; }
+
+/* ===== Preview list ====================================================== */
+.preview-controls {
+  display: flex; gap: 12px; margin-bottom: 16px;
+}
+.preview-controls input { flex: 1; }
+
+.selection-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: var(--bg-alt);
+  border: 1px solid var(--line);
+  border-radius: var(--radius) var(--radius) 0 0;
+  border-bottom: none;
+  font-size: 13px;
+}
+.selection-count {
+  color: var(--ink-dim);
+  font-variant-numeric: tabular-nums;
+}
+.selection-actions {
+  display: flex;
+  gap: 8px;
+}
+.btn.small {
+  padding: 4px 10px;
+  font-size: 12px;
+}
+
+.preview-table-wrap {
+  max-height: 560px;
+  overflow-y: auto;
+  border: 1px solid var(--line);
+  border-radius: 0 0 var(--radius) var(--radius);
+  background: var(--surface);
+}
+
+.preview-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.preview-table thead th {
+  position: sticky;
+  top: 0;
+  background: var(--bg-alt);
+  font-weight: 600;
+  text-align: left;
+  padding: 10px 14px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ink-dim);
+  border-bottom: 1px solid var(--line-strong);
+  z-index: 1;
+  white-space: nowrap;
+}
+
+.preview-table thead th.num { text-align: right; }
+
+.preview-table tbody td {
+  padding: 7px 14px;
+  border-bottom: 1px solid var(--line);
+  vertical-align: middle;
+}
+
+.preview-table tbody td.num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.preview-table tbody td.mono {
+  font-family: var(--mono);
+  font-size: 13px;
+}
+
+/* Farmer group header row — visually distinct, shows farmer name + phone(s) + tags */
+.preview-table tr.farmer-head td {
+  background: #f3eee3;
+  padding: 10px 14px 8px;
+  border-top: 2px solid var(--line-strong);
+  border-bottom: 1px solid var(--line-strong);
+}
+
+/* First header row has no top separator (cleaner edge against thead) */
+.preview-table tbody tr.farmer-head:first-child td {
+  border-top: none;
+}
+
+.preview-table .farmer-select {
+  display: inline-flex;
+  align-items: center;
+  margin-right: 10px;
+  vertical-align: -2px;
+}
+.preview-table .farmer-select input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  margin: 0;
+  accent-color: var(--accent);
+}
+
+.preview-table tr.farmer-head.deselected td {
+  background: var(--bg-alt);
+  opacity: 0.55;
+}
+.preview-table tr.lot-row.deselected td {
+  opacity: 0.45;
+}
+
+.preview-table .farmer-name {
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--ink);
+}
+
+.preview-table .farmer-phones {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--ink-dim);
+  margin-left: 10px;
+}
+
+.preview-table .farmer-tag {
+  display: inline-block;
+  padding: 1px 8px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 600;
+  margin-left: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  vertical-align: 1px;
+}
+.preview-table .tag-multi   { background: var(--accent-soft); color: var(--accent); }
+.preview-table .tag-missing { background: var(--warn-soft);   color: var(--warn); }
+.preview-table .tag-sent    { background: var(--bg-alt);      color: var(--ink-dim); }
+.preview-table .tag-dupe    { background: var(--danger-soft); color: var(--danger); }
+.preview-table .tag-unknown { background: var(--warn-soft);   color: var(--warn); }
+.preview-table .tag-buyer   { background: #ede0fa;            color: #6b3aa3; }
+.preview-table .image-preview-link {
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.preview-table .image-preview-link:hover {
+  background: #d6c1f0;
+}
+
+/* Lot rows: slightly indented first column to show they belong to the farmer above */
+.preview-table tr.lot-row td:first-child {
+  padding-left: 28px;
+}
+
+.preview-table tr.lot-row:hover td {
+  background: var(--bg-alt);
+}
+
+/* Missing-phone farmer: tint the whole group with a soft amber so it stands out */
+.preview-table tr.farmer-head.missing-phone td {
+  background: #f7eedc;
+}
+.preview-table tr.lot-row.missing-phone td {
+  color: var(--ink-mute);
+}
+
+.preview-table .col-lot  { width: 40%; }
+.preview-table .col-qty  { width: 25%; }
+.preview-table .col-rate { width: 35%; }
+
+/* Vyapari preview table has 4 columns: Farmer | Lot | Qty | Rate.
+   Override the default column widths so the farmer name doesn't wrap. */
+#previewTableVy .col-lot  { width: 22%; }
+#previewTableVy .col-qty  { width: 18%; }
+#previewTableVy .col-rate { width: 22%; }
+#previewTableVy tbody td:first-child {
+  width: 38%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+#previewTableVy thead th:first-child {
+  width: 38%;
+}
+
+.preview-table .empty-row td {
+  text-align: center;
+  padding: 32px;
+  color: var(--ink-dim);
+  font-style: italic;
+}
+
+/* ===== Buttons =========================================================== */
+.btn {
+  font: inherit; font-weight: 500;
+  border: 1px solid var(--line-strong);
+  background: var(--surface);
+  color: var(--ink);
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, transform 0.05s;
+}
+.btn:hover:not(:disabled) { background: var(--bg-alt); }
+.btn:active:not(:disabled) { transform: translateY(1px); }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.btn.primary {
+  background: var(--accent); color: white;
+  border-color: var(--accent);
+}
+.btn.primary:hover:not(:disabled) { background: #174a31; }
+
+.btn.danger {
+  background: var(--danger); color: white;
+  border-color: var(--danger);
+}
+.btn.danger:hover:not(:disabled) { background: #7b2820; }
+
+.btn.ghost { background: transparent; }
+.btn.ghost:hover:not(:disabled) { background: var(--bg-alt); }
+
+.btn.big {
+  font-size: 17px;
+  padding: 14px 32px;
+  font-family: var(--display);
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+
+/* ===== View tabs (Shetkari | Vyapari) ==================================== */
+.view-tabs {
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  gap: 10px;
+  margin-bottom: 24px;
+  padding-top: 6px;
+  border-bottom: 1px solid var(--line-strong);
+}
+.view-tab {
+  --tab-accent: var(--accent);
+  background: var(--bg-alt);
+  border: 1px solid var(--line-strong);
+  border-top: 3px solid transparent;
+  border-radius: 12px 12px 0 0;
+  padding: 14px 22px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ink-dim);
+  cursor: pointer;
+  font-family: inherit;
+  margin-bottom: -1px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+}
+.view-tab:hover { color: var(--tab-accent); background: var(--surface); }
+.view-tab.active {
+  color: var(--tab-accent);
+  font-weight: 600;
+  background: var(--surface);
+  border-top-color: var(--tab-accent);
+  border-bottom-color: var(--surface);
+  box-shadow: 0 -3px 10px rgba(29, 26, 20, 0.04);
+}
+.view-tab[data-view="vyapari"] {
+  --tab-accent: #6b3aa3;
+}
+.view-tab:focus-visible {
+  outline: 2px solid var(--tab-accent);
+  outline-offset: 3px;
+}
+@media (max-width: 640px) {
+  .view-tabs { gap: 6px; }
+  .view-tab { flex: 1; min-width: 0; padding: 12px 8px; flex-wrap: wrap; gap: 6px; }
+  .view-tab .small { display: none; }
+}
+.view-tab-icon {
+  font-size: 18px;
+  line-height: 1;
+}
+.buyer-book-pill {
+  display: inline-block;
+  padding: 1px 8px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  background: #6b3aa3;
+  color: white;
+  margin-left: 4px;
+}
+.buyer-book-pill.empty {
+  background: var(--ink-mute);
+}
+
+.view-pane {
+  /* Container for the per-view review + send sections */
+}
+
+/* ===== Dual send panels (WA + SMS side-by-side, stacked on narrow) ======= */
+.send-panels {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  align-items: start;
+}
+/* Vyapari has only WhatsApp — give the lone panel the full width */
+#sendSectionVy .send-panels {
+  grid-template-columns: 1fr;
+}
+@media (max-width: 860px) {
+  .send-panels { grid-template-columns: 1fr; }
+}
+
+.send-panel {
+  padding: 20px 22px 18px;
+}
+
+.send-panel-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--line);
+}
+.send-panel-head h3 {
+  margin: 0;
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: 17px;
+  flex: 1;
+}
+.channel-icon {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: white;
+}
+.channel-icon-wa  { background: var(--accent); }
+.channel-icon-sms { background: #1f4b78; }
+.channel-icon-vy-wa  { background: #6b3aa3; }
+.channel-icon-vy-sms { background: #6b3aa3; }
+.send-panel-status {
+  font-size: 12px;
+  color: var(--ink-dim);
+}
+.send-panel-status.busy   { color: #c59b3d; }
+.send-panel-status.done   { color: var(--accent); }
+.send-panel-status.failed { color: var(--danger); }
+
+.send-panel-wa .progress-bar  { background: var(--accent); }
+.send-panel-sms .progress-bar { background: #1f4b78; }
+.send-panel-vy-wa .progress-bar  { background: #6b3aa3; }
+.send-panel-vy-sms .progress-bar { background: #6b3aa3; }
+
+/* Vyapari send buttons: purple to distinguish from Shetkari */
+.vy-send-btn.btn.primary,
+.vy-sms-send-btn.btn.primary {
+  background: #6b3aa3;
+  border-color: #6b3aa3;
+}
+.vy-send-btn.btn.primary:hover:not(:disabled),
+.vy-sms-send-btn.btn.primary:hover:not(:disabled) {
+  background: #56307f;
+}
+
+/* Live logs inside panels can be a bit shorter than the old single one */
+.send-panel .livelog {
+  max-height: 260px;
+}
+
+/* ===== Send bar ========================================================== */
+.send-bar {
+  display: flex; align-items: center; gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.sms-send-btn.btn.primary {
+  background: #1f4b78;
+  border-color: #1f4b78;
+}
+.sms-send-btn.btn.primary:hover:not(:disabled) {
+  background: #193c60;
+}
+
+.progress-wrap {
+  flex: 1;
+  min-width: 220px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.progress-label-channel {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 3px 8px;
+  border-radius: 999px;
+  color: white;
+  background: var(--accent);
+}
+.progress-wrap[data-channel="sms"] .progress-label-channel { background: #1f4b78; }
+.progress-wrap[data-channel="sms"] .progress-bar           { background: #1f4b78; }
+
+.progress-track {
+  flex: 1;
+  height: 8px;
+  background: var(--bg-alt);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.progress-bar {
+  height: 100%;
+  width: 0%;
+  background: var(--accent);
+  transition: width 0.3s, background 0.2s;
+}
+.progress-label {
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--ink-dim);
+  min-width: 70px; text-align: right;
+}
+
+/* ===== Live log ========================================================== */
+.livelog {
+  background: #fbfaf6;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 12px 16px;
+  font-family: var(--mono);
+  font-size: 12.5px;
+  line-height: 1.65;
+  max-height: 360px;
+  overflow-y: auto;
+  min-height: 80px;
+}
+.log-entry {
+  display: grid;
+  grid-template-columns: 56px 28px 20px 1fr auto;
+  gap: 8px;
+  padding: 2px 0;
+  border-bottom: 1px dotted transparent;
+  align-items: baseline;
+}
+.log-entry .t { color: var(--ink-mute); font-size: 11px; }
+.log-entry .channel-tag {
+  display: inline-block;
+  padding: 1px 5px;
+  border-radius: 3px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-align: center;
+  color: white;
+  line-height: 1.4;
+}
+.log-entry .channel-tag.wa  { background: var(--accent); }
+.log-entry .channel-tag.sms { background: #1f4b78; }
+.log-entry .icon { font-size: 13px; }
+.log-entry.sent .icon, .log-entry.sms_sent .icon { color: var(--accent); }
+.log-entry.failed .icon,
+.log-entry.sms_failed .icon,
+.log-entry.not_on_whatsapp .icon { color: var(--danger); }
+.log-entry .farmer { font-weight: 500; }
+.log-entry .phone { color: var(--ink-dim); }
+
+.actions-row { display: flex; gap: 10px; margin-top: 18px; }
+
+/* ===== Modal ============================================================= */
+.modal-backdrop {
+  position: fixed; inset: 0;
+  background: rgba(29, 26, 20, 0.55);
+  display: grid; place-items: center;
+  z-index: 100;
+  padding: 20px;
+  backdrop-filter: blur(4px);
+}
+.modal {
+  background: var(--surface);
+  border-radius: 10px;
+  padding: 32px 36px;
+  max-width: 440px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 16px 48px rgba(0,0,0,0.25);
+}
+.modal-icon { font-size: 40px; color: var(--warn); margin-bottom: 8px; }
+.modal h3 {
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: 22px;
+  margin: 0 0 14px;
+}
+.modal-body {
+  background: var(--bg-alt);
+  padding: 16px;
+  border-radius: 6px;
+  margin: 16px 0;
+  font-size: 17px;
+}
+.modal-body .mono { font-size: 15px; color: var(--ink-dim); }
+.modal-actions {
+  display: flex; gap: 10px; justify-content: center;
+  margin-top: 20px;
+}
+
+@media (max-width: 720px) {
+  .topbar { padding: 8px 16px; height: 52px; }
+  main { padding: 72px 20px 40px; }
+  .panel { padding: 20px; }
+  .options-row { flex-direction: column; gap: 12px; }
+  .inline-check { padding-top: 0; }
+}
