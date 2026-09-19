@@ -902,10 +902,95 @@ input[type="text"]:focus, select:focus {
   margin-top: 20px;
 }
 
+.gsheet-content { display: flex; align-items: center; gap: 14px; }
+.gsheet-copy { flex: 1; min-width: 0; }
+.brand-mark, .step-num, .wa-chip .dot, .chip-icon { flex-shrink: 0; }
+.popup-close {
+  display: block;
+  margin: -8px -8px 4px auto;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--bg-alt);
+  color: var(--ink);
+  font-size: 26px;
+  cursor: pointer;
+}
+.qr-box { max-width: 100%; }
+.qr-box img { max-width: 100%; height: auto; aspect-ratio: 1; }
+.preview-table-wrap { max-width: 100%; overflow-x: auto; }
+.view-pane, .panel, .send-panel, .send-panels { min-width: 0; }
+
 @media (max-width: 720px) {
-  .topbar { padding: 8px 16px; height: 52px; }
-  main { padding: 72px 20px 40px; }
-  .panel { padding: 20px; }
+  .topbar {
+    position: relative;
+    height: auto;
+    padding: 14px 16px;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 14px;
+  }
+  .brand { gap: 10px; min-width: 0; }
+  .topbar h1 { font-size: 20px; }
+  .sub { margin-top: 4px; line-height: 1.4; overflow-wrap: anywhere; }
+  .header-chips { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .wa-chip { width: 100%; min-height: 44px; justify-content: center; padding: 8px; gap: 6px; }
+  .wa-chip .label { min-width: 0; }
+  .wa-popup {
+    position: fixed;
+    top: 12px;
+    left: 12px;
+    right: 12px;
+    width: auto;
+    max-width: 400px;
+    margin: 0 auto;
+    max-height: calc(100vh - 24px);
+    max-height: calc(100dvh - 24px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 16px;
+    overflow-wrap: anywhere;
+  }
+  .wa-popup-arrow { display: none; }
+  main { padding: 20px 12px 40px; gap: 20px; }
+  .panel { padding: 18px 14px; }
+  .step-head { gap: 10px; margin-bottom: 16px; }
+  .panel h2 { font-size: 21px; }
+  .source-tab { flex: 1; padding: 12px 6px; min-height: 44px; }
+  .gsheet-box, .drop-zone { padding: 18px 14px; }
+  .gsheet-content { flex-wrap: wrap; align-items: flex-start; }
+  .gsheet-copy { flex-basis: calc(100% - 55px); }
+  #gsheetFetchBtn { width: 100%; min-height: 44px; }
+  .upload-info { padding: 12px; }
+  .upload-info-row { align-items: stretch; flex-direction: column; gap: 6px; overflow-wrap: anywhere; }
+  input[type="text"], select { width: 100%; min-width: 0; font-size: 16px; }
   .options-row { flex-direction: column; gap: 12px; }
   .inline-check { padding-top: 0; }
+  .summary-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .card { padding: 12px; }
+  .preview-controls, .selection-bar { flex-direction: column; align-items: stretch; gap: 10px; }
+  .selection-actions > .btn { flex: 1; min-height: 44px; }
+  .preview-table { min-width: 480px; }
+  #previewTableVy { min-width: 560px; }
+  .warnings-box, .actions-row { overflow-wrap: anywhere; }
+  .actions-row { flex-wrap: wrap; }
+  .send-bar > .btn { width: 100%; min-height: 48px; }
+  .progress-wrap { min-width: 0; flex-basis: 100%; }
+  .send-panel-head { flex-wrap: wrap; }
+  .livelog { padding: 10px; }
+  .log-entry { grid-template-columns: 48px 28px 20px minmax(0, 1fr); gap: 5px; }
+  .log-entry .farmer { overflow-wrap: anywhere; }
+  .log-entry .phone { grid-column: 4; overflow-wrap: anywhere; }
+  .modal { padding: 22px 16px; max-height: calc(100dvh - 40px); overflow-y: auto; }
+  .modal-actions { flex-direction: column; }
+  .modal-actions .btn { min-height: 44px; }
 }
+
+.pairing-form { display: grid; gap: 12px; text-align: left; margin-top: 14px; }
+.pairing-form input { width: 100%; min-width: 0; padding: 12px; font: inherit; font-size: 16px; border: 1px solid var(--line-strong); border-radius: 6px; }
+.pairing-form .btn { min-height: 44px; }
+.pairing-code { font-family: var(--mono); font-size: 28px; font-weight: 700; letter-spacing: 3px; user-select: all; }
+#pairingError { color: var(--danger); }
+.qr-alternative { margin-top: 16px; border-top: 1px solid var(--line); padding-top: 12px; }
+.qr-alternative summary { cursor: pointer; padding: 8px 0; }

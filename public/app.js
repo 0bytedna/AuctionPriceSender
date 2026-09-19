@@ -22,9 +22,14 @@
 
   function setWaState(state) {
     waChip.dataset.state = state;
+    $('#pairingBtn').disabled = state !== 'qr';
+    if (state !== 'qr') {
+      $('#pairingResult').classList.add('hidden');
+      $('#pairingCode').textContent = '';
+    }
     const labels = {
       connecting:  'Connecting…',
-      qr:          'Scan QR to link',
+      qr:          'Link WhatsApp',
       connected:   'WhatsApp ready',
       disconnected:'Disconnected',
     };
@@ -39,6 +44,25 @@
     if (state === 'connected') qrPanel.classList.add('hidden');
   }
 
+  $('#pairingForm').addEventListener('submit', async event => {
+    event.preventDefault();
+    $('#pairingBtn').disabled = true;
+    $('#pairingError').textContent = '';
+    $('#pairingResult').classList.add('hidden');
+    try {
+      const response = await fetch('/api/wa/pair', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone: $('#pairingPhone').value }),
+      });
+      const result = await response.json();
+      if (!result.ok) throw new Error(result.error || 'Could not request a code.');
+      if (waChip.dataset.state !== 'qr') return;
+      $('#pairingCode').textContent = String(result.code).match(/.{1,4}/g).join('–');
+      $('#pairingResult').classList.remove('hidden');
+    } catch (err) { $('#pairingError').textContent = err.message; }
+    finally { $('#pairingBtn').disabled = waChip.dataset.state !== 'qr'; }
+  });
+
   // Click chip to toggle popup
   waChip.addEventListener('click', (e) => {
     e.stopPropagation();
@@ -52,7 +76,7 @@
     setWaState('qr');
   });
   socket.on('wa:logged-out', () => {
-    alert('WhatsApp was logged out from this device. Click the chip top-right to scan again.');
+    alert('WhatsApp was logged out from this device. Open the WhatsApp connection panel to link again.');
   });
 
   // ------------------------------------------------------------------------
@@ -110,6 +134,16 @@
       alert(r.ok ? 'Test SMS accepted by the gateway. Check the receiving phone for delivery.' : `Failed: ${r.error}`);
     } catch (err) {
       alert('Failed: ' + err.message);
+    }
+  });
+
+  document.querySelectorAll('.popup-close').forEach(button => {
+    button.addEventListener('click', () => button.closest('.wa-popup').classList.add('hidden'));
+  });
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape') {
+      qrPanel.classList.add('hidden');
+      smsPanel.classList.add('hidden');
     }
   });
 

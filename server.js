@@ -671,6 +671,15 @@ app.post('/api/sms/test', async (req, res) => {
   }
 });
 
+app.post('/api/wa/pair', async (req, res) => {
+  try {
+    const code = await wa.requestPairingCode(req.body?.phone);
+    res.json({ ok: true, code });
+  } catch (e) {
+    res.status(400).json({ ok: false, error: e.message });
+  }
+});
+
 app.post('/api/wa/reset', async (_req, res) => {
   try {
     await wa.disconnect();

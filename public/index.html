@@ -28,19 +28,33 @@
       </button>
       <div class="wa-popup hidden" id="qrPanel">
         <div class="wa-popup-arrow"></div>
+        <button type="button" class="popup-close" aria-label="Close connection panel">×</button>
 
         <div class="wa-popup-view" id="qrView">
-          <h3>Scan to link WhatsApp</h3>
+          <h3>Link WhatsApp</h3>
+          <form id="pairingForm" class="pairing-form">
+            <label for="pairingPhone">Your WhatsApp phone number</label>
+            <input type="tel" id="pairingPhone" placeholder="+91 98765 43210" autocomplete="tel" required />
+            <button class="btn primary" id="pairingBtn" type="submit">Get linking code</button>
+          </form>
+          <p id="pairingError" class="small" role="alert"></p>
+          <div id="pairingResult" class="hidden" aria-live="polite">
+            <p class="pairing-code" id="pairingCode"></p>
+            <p class="small">In WhatsApp, open <strong>Linked devices → Link a device → Link with phone number instead</strong>, then enter this code. This is a linking code, not an SMS code.</p>
+          </div>
+          <details class="qr-alternative">
+          <summary>Use a QR code instead</summary>
           <p class="muted small">On your phone: WhatsApp → Settings → Linked Devices → Link a Device.</p>
           <div class="qr-box"><img id="qrImg" alt="QR code" /></div>
           <p class="muted small">After scanning, this popup closes automatically.</p>
+          </details>
         </div>
 
         <div class="wa-popup-view hidden" id="statusView">
           <h3>WhatsApp linked</h3>
           <p class="muted small">Your WhatsApp account is connected and ready to send.</p>
           <button class="btn ghost wa-unlink-btn" id="resetWaBtn">Unlink WhatsApp</button>
-          <p class="muted small" style="margin-top: 8px;">After unlinking, you'll need to scan a new QR.</p>
+          <p class="muted small" style="margin-top: 8px;">After unlinking, link again with your phone number or a QR code.</p>
         </div>
       </div>
     </div>
@@ -53,6 +67,7 @@
       </button>
       <div class="wa-popup hidden" id="smsPanel">
         <div class="wa-popup-arrow"></div>
+        <button type="button" class="popup-close" aria-label="Close connection panel">×</button>
 
         <div class="wa-popup-view" id="smsUnconfiguredView">
           <h3>SMS Gateway not set up</h3>
@@ -108,9 +123,9 @@
 
     <div class="source-pane" id="paneGsheet">
       <div class="gsheet-box" id="gsheetBox">
-        <div style="display: flex; align-items: center; gap: 14px;">
+        <div class="gsheet-content">
           <div style="font-size: 32px;">☁</div>
-          <div style="flex: 1;">
+          <div class="gsheet-copy">
             <p style="margin: 0; font-weight: 500;">Fetch latest data from your published Google Sheet</p>
             <p class="muted small" id="gsheetHint" style="margin: 4px 0 0;">All tabs will be loaded — pick the date in the Sheet selector below.</p>
           </div>
