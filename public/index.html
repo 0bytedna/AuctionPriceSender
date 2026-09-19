@@ -97,6 +97,17 @@
 </header>
 
 <main>
+  <details class="panel buyer-editor" id="buyerEditor">
+    <summary>Manage Buyer Book</summary>
+    <p class="muted small">Add or update buyer shortnames, names and phone numbers. Shortnames must match your auction sheet. Leave the phone blank to skip a buyer.</p>
+    <div id="buyerEditorRows"></div>
+    <div class="actions-row">
+      <button type="button" class="btn" id="addBuyerBtn" disabled>Add buyer</button>
+      <button type="button" class="btn primary" id="saveBuyerBookBtn" disabled>Save changes</button>
+      <button type="button" class="btn ghost" id="reloadBuyerBookBtn">Reload saved book</button>
+    </div>
+    <p id="buyerEditorStatus" role="status" aria-live="polite"></p>
+  </details>
 
   <!-- Step 1: Load auction data -->
   <section class="panel" id="uploadPanel">
@@ -332,7 +343,7 @@
     </div>
 
     <div class="actions-row" style="margin-top: 16px;">
-      <span class="muted small">Edit <code>data/buyer_book.json</code> to add or update buyers. Restart server to reload.</span>
+      <span class="muted small">Use Manage Buyer Book at the top of the page to update buyers. Changes apply immediately.</span>
     </div>
   </section>
 
@@ -358,5 +369,6 @@
 
 <script src="/socket.io/socket.io.js"></script>
 <script src="/app.js"></script>
+<script src="/buyerEditor.js"></script>
 </body>
 </html>

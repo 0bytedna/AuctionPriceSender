@@ -778,6 +778,9 @@
     if (previewStateVy) renderBuyerPreviewTable(previewStateVy);
   });
   $('#refreshPreviewBtnVy').addEventListener('click', refreshPreviewVy);
+  document.addEventListener('buyer-book:saved', () => {
+    if (currentSource) refreshPreviewVy();
+  });
 
   // ----- Vyapari send wiring (WhatsApp only — SMS is not sent for Vyapari) -----
   const vyPanels = {

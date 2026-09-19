@@ -275,9 +275,20 @@ app.get('/api/buyer-book', (_req, res) => {
     const list = [...book.values()].map(b => ({
       shortname: b.shortname,
       fullName: b.fullName,
+      phone: b.phone,
       hasPhone: !!b.phone,
     }));
-    res.json({ ok: true, count: list.length, path: buyerBookLib.bookPath(DATA_DIR), buyers: list });
+    res.json({ ok: true, count: list.length, revision: buyerBookLib.revision(DATA_DIR), buyers: list });
+  } catch (e) {
+    res.status(400).json({ ok: false, error: e.message });
+  }
+});
+
+app.post('/api/buyer-book', (req, res) => {
+  try {
+    if (currentVyWaJob?.running || currentVySmsJob?.running) throw new Error('Wait for the buyer send to finish before editing the book.');
+    const revision = buyerBookLib.saveBook(DATA_DIR, req.body.buyers, req.body.revision);
+    res.json({ ok: true, revision });
   } catch (e) {
     res.status(400).json({ ok: false, error: e.message });
   }
