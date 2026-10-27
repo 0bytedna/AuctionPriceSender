@@ -13,14 +13,15 @@
   function addRow(buyer = {}) {
     const row = document.createElement('div');
     row.className = 'buyer-editor-row';
-    for (const [key, title] of [['shortname', 'Shortname'], ['fullName', 'Full name'], ['phone', 'Phone number']]) {
+    for (const [key, title] of [['Names', 'Names'], ['Numbers', 'Numbers']]) {
       const label = document.createElement('label');
       label.textContent = title;
       const input = document.createElement('input');
-      input.type = key === 'phone' ? 'tel' : 'text';
+      input.type = 'text';
       input.dataset.field = key;
-      input.value = buyer[key] || '';
-      input.maxLength = key === 'fullName' ? 160 : key === 'shortname' ? 60 : 24;
+      input.value = Array.isArray(buyer[key]) ? buyer[key].join(', ') : (buyer[key] || '');
+      input.maxLength = 1000;
+      input.placeholder = key === 'Names' ? 'Abid, YKB, KHB, KHBJ' : '9876543210, 9123456789';
       input.addEventListener('input', () => { dirty = true; status('Unsaved changes'); });
       label.append(input); row.append(label);
     }

@@ -1,25 +1,238 @@
-{
-  "PT":     { "fullName": "Pavan Cold Storage", "phone": "8123320128" },
-  "KHB":   { "fullName": "Abid",   "phone": "9741555246" },
-  "KHJ": { "fullName": "Azar",       "phone": "9482103393" },
-  "PP":     { "fullName": "Jeenu",        "phone": "9916853744" },
-  "MS":     { "fullName": "Javed",          "phone": "9113210043" },
-  "KK":     { "fullName": "Akhil",     "phone": "9739228118" },
-  "SURESH": { "fullName": "Suresh Angadi",      "phone": "9740305935" },
-  "MROUND":     { "fullName": "Muzamil",     "phone": "9591573370" },
-  "RUNWAL":     { "fullName": "Abhinav",     "phone": "9620506205" },
-  "RAJESH":     { "fullName": "Rajesh",     "phone": "9036366565" },
-  "MALKU":     { "fullName": "Malku",     "phone": "9035068315" },
-  "JAKIR":     { "fullName": "Jakir",     "phone": "8123907594" },
-"BHAVESH":     { "fullName": "Bhavesh Porwal",     "phone": "7259049333" },
-"KCY":     { "fullName": "Khalid Bagwan",     "phone": "9036039556" },
-"ASLAM":     { "fullName": "Aslam Bagwan",     "phone": "9845559707" },
-"BS":     { "fullName": "Basaveshwar",     "phone": "9880745747" },
-"KHADE":     { "fullName": "Umesh Khade",     "phone": "8310402500" },
-"PATIL":     { "fullName": "Shantagouda Patil",     "phone": "9611968427" },
-"HOSMANI":     { "fullName": "Hosmani",     "phone": "9448986138" },
-"KOHINOOR":     { "fullName": "Kohinoor",     "phone": "9901862806" },
-"BABLU":     { "fullName": "Bablu Hyd",     "phone": "9908888598" },
-"ST":     { "fullName": "Sevalal Trading",     "phone": "7057238866" },
-"WASEEM":     { "fullName": "Sevalal Trading",     "phone": "7795517710" }
-}
+[
+  {
+    "Names": [
+      "PT",
+      "Pavan Cold Storage"
+    ],
+    "Numbers": [
+      "8123320128"
+    ]
+  },
+  {
+    "Names": [
+      "KHB",
+      "KHBY",
+      "YKB",
+      "ABID"
+    ],
+    "Numbers": [
+      "9741555246"
+    ]
+  },
+  {
+    "Names": [
+      "KHJ",
+      "Azar",
+      "KHBJ"
+    ],
+    "Numbers": [
+      "9482103393"
+    ]
+  },
+  {
+    "Names": [
+      "PP",
+      "Jeenu"
+    ],
+    "Numbers": [
+      "9916853744"
+    ]
+  },
+  {
+    "Names": [
+      "MS",
+      "Javed",
+      "MSB"
+    ],
+    "Numbers": [
+      "8792078527"
+    ]
+  },
+  {
+    "Names": [
+      "KK",
+      "Akhil"
+    ],
+    "Numbers": [
+      "9739228118"
+    ]
+  },
+  {
+    "Names": [
+      "SURESH",
+      "Suresh Angadi"
+    ],
+    "Numbers": [
+      "9740305935"
+    ]
+  },
+  {
+    "Names": [
+      "MROUND",
+      "Muzamil"
+    ],
+    "Numbers": [
+      "9591573370"
+    ]
+  },
+  {
+    "Names": [
+      "RUNWAL",
+      "Abhinav"
+    ],
+    "Numbers": [
+      "9620506205"
+    ]
+  },
+  {
+    "Names": [
+      "RAJESH",
+      "RAJPUT",
+      "RJ"
+    ],
+    "Numbers": [
+      "9036366565"
+    ]
+  },
+  {
+    "Names": [
+      "MALKU",
+      "MK"
+    ],
+    "Numbers": [
+      "9035068315"
+    ]
+  },
+  {
+    "Names": [
+      "JAKIR"
+    ],
+    "Numbers": [
+      "8123907594"
+    ]
+  },
+  {
+    "Names": [
+      "BHAVESH",
+      "Bhavesh Porwal"
+    ],
+    "Numbers": [
+      "7259049333"
+    ]
+  },
+  {
+    "Names": [
+      "KCY",
+      "Khalid Bagwan"
+    ],
+    "Numbers": [
+      "9036039556"
+    ]
+  },
+  {
+    "Names": [
+      "ASLAM",
+      "Aslam Bagwan"
+    ],
+    "Numbers": [
+      "9845559707"
+    ]
+  },
+  {
+    "Names": [
+      "BS",
+      "Basaveshwar",
+      "BASA"
+    ],
+    "Numbers": [
+      "9880745747"
+    ]
+  },
+  {
+    "Names": [
+      "KHADE",
+      "Umesh Khade"
+    ],
+    "Numbers": [
+      "8310402500"
+    ]
+  },
+  {
+    "Names": [
+      "PATIL",
+      "Shantagouda Patil"
+    ],
+    "Numbers": [
+      "9611968427"
+    ]
+  },
+  {
+    "Names": [
+      "HOSMANI",
+      "HB"
+    ],
+    "Numbers": [
+      "9448986138"
+    ]
+  },
+  {
+    "Names": [
+      "KOHINOOR"
+    ],
+    "Numbers": [
+      "9901862806"
+    ]
+  },
+  {
+    "Names": [
+      "BABLU",
+      "Bablu Hyd"
+    ],
+    "Numbers": [
+      "9908888598"
+    ]
+  },
+  {
+    "Names": [
+      "ST"
+    ],
+    "Numbers": [
+      "7057238866"
+    ]
+  },
+  {
+    "Names": [
+      "WASEEM",
+      "WASIM",
+      "W"
+    ],
+    "Numbers": [
+      "7795517710"
+    ]
+  },
+  {
+    "Names": [
+      "DINESH",
+      "BALAJI"
+    ],
+    "Numbers": [
+      "9741292424"
+    ]
+  },
+  {
+    "Names": [
+      "PU"
+    ],
+    "Numbers": [
+      "9448124523"
+    ]
+  },
+  {
+    "Names": [
+      "VRBT"
+    ],
+    "Numbers": [
+      "9880028295"
+    ]
+  }
+]

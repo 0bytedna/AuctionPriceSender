@@ -273,9 +273,13 @@ app.get('/api/buyer-book', (_req, res) => {
   try {
     const book = buyerBookLib.loadBook(DATA_DIR);
     const list = [...book.values()].map(b => ({
+      Names: b.Names,
+      Numbers: b.Numbers,
       shortname: b.shortname,
       fullName: b.fullName,
       phone: b.phone,
+      phones: b.phones,
+      aliases: b.aliases,
       hasPhone: !!b.phone,
     }));
     res.json({ ok: true, count: list.length, revision: buyerBookLib.revision(DATA_DIR), buyers: list });
@@ -369,7 +373,7 @@ app.post('/api/send-buyers', async (req, res) => {
     const outbox = [];
     for (const p of preview.previews) {
       if (selectionSet && !selectionSet.has(p.shortname.toUpperCase())) continue;
-      const phone = testPhoneNorm || p.phones[0];
+      for (const phone of (testPhoneNorm ? [testPhoneNorm] : p.phones)) {
       const key = `${p.shortname}|${phone}`;
       if (already.has(key)) continue;
 
@@ -400,6 +404,7 @@ app.post('/api/send-buyers', async (req, res) => {
       }
 
       outbox.push(item);
+      }
     }
 
     if (!outbox.length) throw new Error('Nothing to send — no buyers selected, or all selected buyers already received WhatsApp today');
@@ -451,7 +456,7 @@ app.post('/api/send-buyers-sms', async (req, res) => {
     const outbox = [];
     for (const p of preview.previews) {
       if (selectionSet && !selectionSet.has(p.shortname.toUpperCase())) continue;
-      const phone = testPhoneNorm || p.phones[0];
+      for (const phone of (testPhoneNorm ? [testPhoneNorm] : p.phones)) {
       const key = `${p.shortname}|${phone}`;
       if (already.has(key)) continue;
       outbox.push({
@@ -460,6 +465,7 @@ app.post('/api/send-buyers-sms', async (req, res) => {
         phone,
         message: p.message,
       });
+      }
     }
 
     if (!outbox.length) throw new Error('Nothing to send — no buyers selected, or all selected buyers already received SMS today');

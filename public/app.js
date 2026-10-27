@@ -675,7 +675,7 @@
            </label>`
         : `<span class="farmer-select"><span style="width:16px;display:inline-block;"></span></span>`;
 
-      const phoneText = isSendable && p.phones && p.phones.length ? p.phones[0].slice(2) : '—';
+      const phoneText = isSendable && p.phones && p.phones.length ? p.phones.map(phone => phone.startsWith('91') ? phone.slice(2) : phone).join(', ') : '—';
       const headerLabel = isSendable
         ? `<span class="farmer-name">${escapeHtml(p.fullName || p.shortname)}</span> <span class="muted small">(${escapeHtml(p.shortname)})</span>`
         : p.kind === 'noPhone'

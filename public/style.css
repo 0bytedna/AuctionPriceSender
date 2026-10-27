@@ -1000,3 +1000,7 @@ input[type="text"]:focus, select:focus {
 .buyer-editor-row label { display: grid; gap: 6px; min-width: 0; font-size: 13px; }
 .buyer-editor-row input { width: 100%; min-width: 0; padding: 10px; border: 1px solid var(--line-strong); border-radius: 6px; font: inherit; font-size: 16px; }
 @media (max-width: 720px) { .buyer-editor-row { grid-template-columns: 1fr; } .buyer-editor .btn { min-height: 44px; } }
+
+@media (min-width: 721px) { .buyer-editor-row { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+@media (min-width: 721px) { .buyer-editor-row { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto; } }
